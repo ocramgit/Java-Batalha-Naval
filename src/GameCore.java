@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class GameCore {
 
     private ArrayList<Ship> ships = new ArrayList<>();
-    private Field field;
+    private String[][] field;
     private String[][] fakeField;
     private String[][] computerField;
     private String[][] computerFakeField;
@@ -26,12 +26,13 @@ public class GameCore {
         sc = new Scanner(System.in);
         gameOver = false;
 
-        field = new Field(6);
-        fakeField = new String[field.getSize()][field.getSize()];
-        computerField = new String[field.getSize()][field.getSize()];
-        computerFakeField = new String[field.getSize()][field.getSize()];
-        fillArrayWithRandomObjects(field.getField());
+        field = new String[6][6];
+        fakeField = new String[field.length][field.length];
+        computerField = new String[field.length][field.length];
+        computerFakeField = new String[field.length][field.length];
+        fillArrayWithRandomObjects(field);
         fillArrayWithNulls(fakeField);
+        fillArrayWithNulls(computerFakeField);
         fillArrayWithNulls(computerField);
     }
 
@@ -60,36 +61,35 @@ public class GameCore {
                 System.out.println();
             }
             shipCount++;
-            System.out.println("added "+ shipCount);
-
         }
     }
 
     public void addComputerField(int row, int column, int playerChoice) {
-        computerField[row][column-1] = ships.get(playerChoice).getName();
+        computerField[row][column] = ships.get(playerChoice).getName();
     }
 
     public boolean checkPlay(int row, int column) {
-        if (field.getField()[row][column] != null) {
-            fakeField[row][column] = field.getField()[row][column];
+        if (field[row][column] != null) {
+            fakeField[row][column] = field[row][column];
             return true;
+        } else {
+            fakeField[row][column] = "⚫";
+            return false;
         }
-        return false;
     }
 
     public boolean checkComputerPlay(int row, int column) {
-        if (computerFakeField[row][column] != null) {
+        if (computerFakeField[row][column].equals("⚫")) {
             computerFakeField[row][column] = computerField[row][column];
             return true;
         }
         return false;
     }
 
-
-    public void renderGraph(boolean choice, int row, int column) {
+    public void renderGraph(boolean choice, int row, int column) throws InterruptedException {
 
         if (choice) {
-            fakeField[row][column] = field.getField()[row][column];
+            fakeField[row][column] = field[row][column];
             System.out.println("Nice!");
         } else {
             fakeField[row][column] = "\uD83C\uDF0A";
@@ -102,6 +102,7 @@ public class GameCore {
             }
             System.out.println();
         }
+        Thread.sleep(2000);
     }
 
     private void fillArrayWithRandomObjects(String[][] field) {
@@ -121,7 +122,7 @@ public class GameCore {
     private String random() {
         double probability = Math.random();
 
-        if (probability > 0.5) {
+        if (probability > 0.2) {
             return null;
         } else {
             int number = (int) (Math.random() * ships.size());
@@ -129,7 +130,7 @@ public class GameCore {
         }
     }
 
-    public void startModeBot() {
+    public void startModeBot() throws InterruptedException {
         System.out.println("Welcome! Computer generated some ships. Good luck!");
         System.out.println("VAMOS CRIAR O TEU TABULEIRO");
         createComputerField();
@@ -140,20 +141,20 @@ public class GameCore {
     private boolean isValidIndex(int row, int column, String[][] field) {
         return row >= 0 && row < field.length && column >= 0 && column < field[0].length;
     }
-    private void play() {
+    private void play() throws InterruptedException {
         while (!gameOver) {
-            isValid = false;  // Reinicializa isValid no início do loop
+            isValid = false;
             int computerRow = computer.getRandom(computerFakeField.length);
             int computerColumn = computer.getRandom(computerFakeField[0].length);
             System.out.println("Computer's indices: Row=" + computerRow + ", Column=" + computerColumn);
-            // Verifica se os índices do computador são válidos
+
             if (isValidIndex(computerRow, computerColumn, computerFakeField)) {
-                if (computerFakeField[computerRow][computerColumn].equals("⚫")) {
-                    isValid = checkComputerPlay(computerRow, computerColumn);
-                    renderComputerGraph(isValid, computerRow, computerColumn);
-                } else {
+                if (!checkComputerPlay(computerRow, computerColumn)) {
                     System.out.println("Computer already played that position");
+                    continue;
                 }
+
+                renderComputerGraph(isValid, computerRow, computerColumn);
             } else {
                 System.out.println("Invalid computer indices!");
             }
@@ -170,7 +171,7 @@ public class GameCore {
                 isValid = checkPlay(playerLetterToInt, playerNumber);
                 renderGraph(isValid, playerLetterToInt, playerNumber);
             } else {
-                System.out.println("You already player that position!");
+                System.out.println("You already played that position!");
             }
         }
     }
@@ -179,7 +180,7 @@ public class GameCore {
 
         if (choice) {
             computerFakeField[row][column] = computerField[row][column];
-            System.out.println("Nice!");
+            System.out.println("Computer destroyed "+computerFakeField[row][column]);
         } else {
             computerFakeField[row][column] = "\uD83C\uDF0A";
         }

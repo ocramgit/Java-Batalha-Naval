@@ -1,15 +1,12 @@
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-
-
+    public static void main(String[] args) throws InterruptedException {
         GameCore battleship = new GameCore();
         menu(battleship);
-
     }
 
-    public static void menu(GameCore battleship) {
+    public static void menu(GameCore battleship) throws InterruptedException {
 
         Scanner sc = new Scanner(System.in);
         switch (sc.next()) {
