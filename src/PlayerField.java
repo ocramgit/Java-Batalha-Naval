@@ -27,6 +27,79 @@ public class PlayerField {
         return playerField;
     }
 
+    public void placeBoatsOnField() {
+        for (int boat = 0; boat < 5; boat++) {
+            boolean placed = false;
+
+            while (!placed) {
+                int row = getRandomRowAndColumn();
+                int column = getRandomRowAndColumn();
+
+                if (row + ships.get(boat).getSize() > 10 || column + ships.get(boat).getSize() > 10) {
+                    continue;
+                }
+
+                switch (getRandomVorH()) {
+                    case 1:
+                        placed = tryPlaceHorizontal(boat, row, column);
+                        break;
+                    case 0:
+                        placed = tryPlaceVertical(boat, row, column);
+                        break;
+                }
+            }
+        }
+
+        fillEmptySpaces();
+    }
+
+    private boolean tryPlaceHorizontal(int boat, int row, int column) {
+        for (int i = 0; i < ships.get(boat).getSize(); i++) {
+            if (!playerField[row][column + i].equals("⚫")) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < ships.get(boat).getSize(); i++) {
+            playerField[row][column + i] = ships.get(boat).getName();
+        }
+
+        return true;
+    }
+
+    private boolean tryPlaceVertical(int boat, int row, int column) {
+        for (int i = 0; i < ships.get(boat).getSize(); i++) {
+            if (!playerField[row + i][column].equals("⚫")) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < ships.get(boat).getSize(); i++) {
+            playerField[row + i][column] = ships.get(boat).getName();
+        }
+
+        return true;
+    }
+
+    private void fillEmptySpaces() {
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (playerField[i][j].equals("⚫")) {
+                    playerField[i][j] = "⚫";
+                }
+            }
+        }
+    }
+
+
+    public int getRandomVorH() {
+        return (int) (Math.random() * 2);
+    }
+
+    public int getRandomRowAndColumn() {
+        return (int) (Math.random() * 10);
+    }
+
     public ArrayList<Ship> getShips() {
         return ships;
     }

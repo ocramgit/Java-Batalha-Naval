@@ -34,37 +34,8 @@ public class GameCore {
     }
 
     public void play() throws InterruptedException {
-        int count = 0;
-        while(count != 5) {
-            System.out.println("Que barco:");
-            System.out.println("1 - \uD83D\uDEA2");
-            int barco = sc.nextInt();
-
-            System.out.println("Qual linha?");
-            int row = sc.nextInt();
-
-            System.out.println("Onde começar?");
-            int column = sc.nextInt();
-
-            System.out.println("Posição: (H) ou (V)");
-
-            switch (sc.next()) {
-                case "H":
-                    for (int i = 0; i < playerField.getShips().get(barco).getSize(); i++) {
-                        playerField.getPlayerField()[row][column + i] = playerField.getShips().get(barco).getName();
-                    }
-                    renderPlayerField();
-                    break;
-                case "V":
-                    for (int i = 0; i < playerField.getShips().get(barco).getSize(); i++) {
-                        playerField.getPlayerField()[row + i][column] = playerField.getShips().get(barco).getName();
-                    }
-                    renderPlayerField();
-                    break;
-            }
-            count++;
-        }
-
+        playerField.placeBoatsOnField();
+        renderPlayerField();
 
         while(!gameOver) {
             System.out.println("COMPUTER PLAY:");
@@ -123,6 +94,14 @@ public class GameCore {
                 return 4;
             case "F":
                 return 5;
+            case "G":
+                return 6;
+            case "H":
+                return 7;
+            case "I":
+                return 8;
+            case "J":
+                return 9;
         }
 
         return 0;
