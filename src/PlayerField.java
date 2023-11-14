@@ -6,6 +6,8 @@ public class PlayerField {
     private ArrayList<Ship> ships;
     private String[][] playerField;
     private String[][] playerFakeField;
+    private int rows = 10;
+    private int columns = 10;
 
     public PlayerField(int row, int column) {
         playerField = new String[row][column];
@@ -51,6 +53,14 @@ public class PlayerField {
         }
 
         fillEmptySpaces();
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public int getColumns() {
+        return columns;
     }
 
     private boolean tryPlaceHorizontal(int boat, int row, int column) {
@@ -116,28 +126,9 @@ public class PlayerField {
         playerFakeField[row][column] = insert;
     }
 
-    private void addShipsAndNulls(String[][] field) {
-        for (int i = 0; i < field.length; i++) {
-            for (int j = 0; j < field[i].length; j++) {
-                field[i][j] = random();
-            }
-        }
-    }
-
     private void addNulls(String[][] field) {
         for (String[] strings : field) {
             Arrays.fill(strings, "⚫");
-        }
-    }
-
-    private String random() {
-        double probability = Math.random();
-
-        if (probability > 0.2) {
-            return "⚫";
-        } else {
-            int number = (int) (Math.random() * ships.size());
-            return ships.get(number).getName();
         }
     }
 }

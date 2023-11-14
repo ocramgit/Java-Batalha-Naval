@@ -5,6 +5,8 @@ public class ComputerField {
     private ArrayList<Ship> ships;
     private String[][] computerField;
     private String[][] computerFakeField;
+    private int row = 10;
+    private int columns = 10;
 
     public ComputerField(int row, int column) {
         computerField = new String[row][column];
@@ -19,6 +21,10 @@ public class ComputerField {
 
         addNulls(computerField);
         addNulls(computerFakeField);
+    }
+
+    public ArrayList<Ship> getShips() {
+        return ships;
     }
 
     public String[][] getComputerField() {
@@ -53,6 +59,14 @@ public class ComputerField {
         }
 
         fillEmptySpaces();
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public int getRows() {
+        return row;
     }
 
     private boolean tryPlaceHorizontal(int boat, int row, int column) {
@@ -108,25 +122,6 @@ public class ComputerField {
     private void addNulls(String[][] field) {
         for (String[] strings : field) {
             Arrays.fill(strings, "⚫");
-        }
-    }
-
-    /*private void addShipsAndNulls(String[][] field) {
-        for (int i = 0; i < field.length; i++) {
-            for (int j = 0; j < field[i].length; j++) {
-                field[i][j] = random();
-            }
-        }
-    }*/
-
-    private String random() {
-        double probability = Math.random();
-
-        if (probability > 0.2) {
-            return "⚫";
-        } else {
-            int number = (int) (Math.random() * ships.size());
-            return ships.get(number).getName();
         }
     }
 
