@@ -12,6 +12,7 @@ public class Menu {
 
         switch (sc.next()) {
             case "1":
+                gameCore.startPlayer();
                 break;
             case "2":
                 System.out.println("Options: ");

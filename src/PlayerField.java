@@ -6,6 +6,8 @@ public class PlayerField {
     private ArrayList<Ship> ships;
     private String[][] playerField;
     private String[][] playerFakeField;
+    private String[][] playerTwoField;
+    private String[][] playerTwoFakeField;
     private int rows = 10;
     private int columns = 10;
 
@@ -14,6 +16,8 @@ public class PlayerField {
         ships = new ArrayList<>();
         playerField = new String[row][column];
         playerFakeField = new String[row][column];
+        playerTwoField = new String[row][column];
+        playerTwoFakeField = new String[row][column];
 
         ships.add(new Ship("\uD83D\uDEA2", 3));
         ships.add(new Ship("⛵", 4));
@@ -23,13 +27,15 @@ public class PlayerField {
 
         addNulls(playerField);
         addNulls(playerFakeField);
+        addNulls(playerTwoField);
+        addNulls(playerTwoFakeField);
     }
 
     public String[][] getPlayerField() {
         return playerField;
     }
 
-    public void placeBoatsOnField() {
+    public void placeBoatsOnField(String[][] field) {
         for (int boat = 0; boat < 5; boat++) {
             boolean placed = false;
 
@@ -43,16 +49,24 @@ public class PlayerField {
 
                 switch (getRandomVorH()) {
                     case 1:
-                        placed = tryPlaceHorizontal(boat, row, column);
+                        placed = tryPlaceHorizontal(field, boat, row, column);
                         break;
                     case 0:
-                        placed = tryPlaceVertical(boat, row, column);
+                        placed = tryPlaceVertical(field, boat, row, column);
                         break;
                 }
             }
         }
 
         fillEmptySpaces();
+    }
+
+    public String[][] getPlayerTwoFakeField() {
+        return playerTwoFakeField;
+    }
+
+    public String[][] getPlayerTwoField() {
+        return playerTwoField;
     }
 
     public int getRows() {
@@ -63,29 +77,29 @@ public class PlayerField {
         return columns;
     }
 
-    private boolean tryPlaceHorizontal(int boat, int row, int column) {
+    private boolean tryPlaceHorizontal(String[][] field, int boat, int row, int column) {
         for (int i = 0; i < ships.get(boat).getSize(); i++) {
-            if (!playerField[row][column + i].equals("⚫")) {
+            if (!field[row][column + i].equals("⚫")) {
                 return false;
             }
         }
 
         for (int i = 0; i < ships.get(boat).getSize(); i++) {
-            playerField[row][column + i] = ships.get(boat).getName();
+            field[row][column + i] = ships.get(boat).getName();
         }
 
         return true;
     }
 
-    private boolean tryPlaceVertical(int boat, int row, int column) {
+    private boolean tryPlaceVertical(String[][] field, int boat, int row, int column) {
         for (int i = 0; i < ships.get(boat).getSize(); i++) {
-            if (!playerField[row + i][column].equals("⚫")) {
+            if (!field[row + i][column].equals("⚫")) {
                 return false;
             }
         }
 
         for (int i = 0; i < ships.get(boat).getSize(); i++) {
-            playerField[row + i][column] = ships.get(boat).getName();
+            field[row + i][column] = ships.get(boat).getName();
         }
 
         return true;
@@ -130,5 +144,12 @@ public class PlayerField {
         for (String[] strings : field) {
             Arrays.fill(strings, "⚫");
         }
+    }
+    public boolean haveAnyShipOnPlayerTwoField(int row, int column) {
+        return playerTwoField[row][column].equals("⚫");
+    }
+
+    public void insertOnPlayerTwoFakeField(int row, int column, String insert) {
+        playerTwoFakeField[row][column] = insert;
     }
 }
