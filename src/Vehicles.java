@@ -1,19 +1,19 @@
 public class Vehicles {
     private String name;
     private int size;
-    private boolean isDestroyed;
+    private int timesHit;
 
     public Vehicles(String name, int size) {
         this.name = name;
         this.size = size;
     }
 
-    public boolean isDestroyed() {
-        return isDestroyed;
+    public int getTimesHit() {
+        return timesHit;
     }
 
-    public void setDestroyed(boolean destroyed) {
-        isDestroyed = destroyed;
+    public void setTimesHit(int timesHit) {
+        this.timesHit = timesHit;
     }
 
     public int getSize() {

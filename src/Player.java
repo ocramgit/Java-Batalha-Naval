@@ -37,13 +37,27 @@ public class Player implements GameEntities {
                 fakeField.getField()[row][column] = field.getField()[row][column];
                 String shipName = field.getField()[row][column];
                 for (Ship ship : shipArrayList) {
-                    if (shipName.equals(ship.getName())) {
-                        ship.setSize(ship.getSize() - 1);
+                    if (ship.getName().equals(shipName)) {
+                        ship.setTimesHit(ship.getTimesHit() + 1);
+                        if (ship.getTimesHit() >= ship.getSize()) {
+                            explodeShips(shipName);
+                        }
                     }
                 }
             }
         } else {
             System.out.println("Already played on that position!");
+        }
+    }
+
+    private void explodeShips(String shipName) {
+        for (int i = 0; i < field.getField().length; i++) {
+            for (int j = 0; j < field.getField()[i].length; j++) {
+                if(fakeField.getField()[i][j].equals(shipName)) {
+                    fakeField.getField()[i][j] = "🔥";
+                }
+            }
+            System.out.println();
         }
     }
 
@@ -60,7 +74,7 @@ public class Player implements GameEntities {
             String direction = sc.next().toLowerCase();
             int boatCount = 0;
             for (Ship ship : shipArrayList) {
-                System.out.println(boatCount + " " + ship.getName() + "| Size: " + ship.getSize());
+                System.out.println(boatCount + " " + ship.getName() + " | Size: " + ship.getSize());
                 boatCount++;
             }
 
@@ -72,7 +86,7 @@ public class Player implements GameEntities {
             boolean isShipRight = false;
 
             while (!isShipRight) {
-                if(ship < 4 && ship >= 0) {
+                if (ship < 4 && ship >= 0) {
                     boatSize = shipArrayList.get(ship).getSize();
                     isShipRight = true;
                 } else {
@@ -85,6 +99,10 @@ public class Player implements GameEntities {
                 case "v":
                     try {
                         for (int i = 0; i < boatSize; i++) {
+                            if (row + boatSize > field.getField().length) {
+                                System.out.println("Can't place here. Out of bounds.");
+                                break;
+                            }
                             if (field.getField()[row + i][column].equals("⬛")) {
                                 field.getField()[row + i][column] = shipArrayList.get(ship).getName();
                                 shipsPlayerPlaced++;
@@ -95,13 +113,19 @@ public class Player implements GameEntities {
                         }
                     } catch (Exception e) {
                         System.out.println("Can't place here. Out of bounds.");
+                        break;
                     }
                     break;
                 case "h":
                     try {
                         for (int i = 0; i < boatSize; i++) {
-                            if (field.getField()[row][column+i].equals("⬛")) {
-                                field.getField()[row][column+i] = shipArrayList.get(ship).getName();
+                            if (row + boatSize > field.getField().length) {
+                                System.out.println("Can't place here. Out of bounds.");
+                                break;
+                            }
+
+                            if (field.getField()[row][column + i].equals("⬛")) {
+                                field.getField()[row][column + i] = shipArrayList.get(ship).getName();
                                 shipsPlayerPlaced++;
                             } else {
                                 System.out.println("Can't place here. Already have a ship on this position.");
@@ -110,16 +134,27 @@ public class Player implements GameEntities {
                         }
                     } catch (Exception e) {
                         System.out.println("Can't place here. Out of bounds.");
+                        break;
                     }
                     break;
             }
             if (shipsPlayerPlaced == 10) isShipsPlaced = true;
-            renderGraphic();
+            renderCreationGraphic();
         }
     }
 
     @Override
     public void renderGraphic() {
+        for (int i = 0; i < fakeField.getField().length; i++) {
+            for (int j = 0; j < fakeField.getField()[i].length; j++) {
+                System.out.print("\t" + fakeField.getField()[i][j]);
+            }
+            System.out.println();
+        }
+    }
+
+    @Override
+    public void renderCreationGraphic() {
         for (int i = 0; i < field.getField().length; i++) {
             for (int j = 0; j < field.getField()[i].length; j++) {
                 System.out.print("\t" + field.getField()[i][j]);

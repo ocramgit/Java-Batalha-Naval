@@ -24,6 +24,11 @@ public class Computer implements GameEntities {
 
     }
 
+    @Override
+    public void renderCreationGraphic() {
+
+    }
+
     public Field getFakeField() {
         return fakeField;
     }
