@@ -24,7 +24,7 @@ public class GameCore {
         playerTwo.placeShips();
     }
 
-    public void init() {
+    public void initPVPManual() {
         askPlayerOneToPlaceShips();
         askPlayerTwoToPlaceShips();
         System.out.println("Start game.....");
@@ -33,6 +33,17 @@ public class GameCore {
             playOnPlayerOneBoard();
         }
     }
+
+    public void initPVPRandom() {
+        playerOne.placeShipsRandom();
+        playerTwo.placeShipsRandom();
+        System.out.println("Start game.....");
+        while (!gameOver) {
+            playOnPlayerTwoBoard();
+            playOnPlayerOneBoard();
+        }
+    }
+
 
     private void playOnPlayerOneBoard() {
         System.out.println("Player 2: ");
@@ -81,7 +92,5 @@ public class GameCore {
         fillFieldWithNulls(computer.getField().getField());
     }
 
-    public int random() {
-        return 0;
-    }
+
 }
