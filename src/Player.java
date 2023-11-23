@@ -1,5 +1,5 @@
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 import java.util.Scanner;
 
 public class Player implements GameEntities {
@@ -8,6 +8,7 @@ public class Player implements GameEntities {
     private Field field;
     private Field fakeField;
     private Scanner sc;
+    private int explodedShips = 0;
 
     public Player(Field field, Field fakeField) {
         this.field = field;
@@ -15,10 +16,10 @@ public class Player implements GameEntities {
         this.shipArrayList = new ArrayList<>();
         this.sc = new Scanner(System.in);
 
-        shipArrayList.add(new Ship("🚢", 4));
-        shipArrayList.add(new Ship("🛳️", 3));
-        shipArrayList.add(new Ship("⛴️", 2));
-        shipArrayList.add(new Ship("🛥️", 1));
+        shipArrayList.add(new Ship("🚢", 4, 4));
+        shipArrayList.add(new Ship("🛳️", 3, 3));
+        shipArrayList.add(new Ship("⛴️", 2, 2));
+        shipArrayList.add(new Ship("🛥️", 1, 1));
     }
 
     public Field getField() {
@@ -30,16 +31,27 @@ public class Player implements GameEntities {
     }
 
     @Override
-    public void play(int row, int column) {
+    public void play(int row, int column) throws InterruptedException {
         if (fakeField.getField()[row][column].equals("⬛")) {
             if (field.getField()[row][column].equals("⬛")) {
                 fakeField.getField()[row][column] = "🌊";
+                Music water = new Music("/water.wav");
+                water.play();
+                water.stop();
             } else {
                 fakeField.getField()[row][column] = field.getField()[row][column];
                 String shipName = field.getField()[row][column];
+                Music explosion = new Music("/explosion.wav");
+                explosion.play();
+                explosion.stop();
                 for (Ship ship : shipArrayList) {
                     if (ship.getName().equals(shipName)) {
+                        if(ship.getName().equals("\uD83D\uDD25")) {
+                            explodedShips++;
+                        }
+
                         ship.setTimesHit(ship.getTimesHit() + 1);
+                        ship.setSizeChange(ship.getSizeChange()-1);
                         if (ship.getTimesHit() >= ship.getSize()) {
                             explodeShips(shipName);
                         }
@@ -51,11 +63,14 @@ public class Player implements GameEntities {
         }
     }
 
+    public int getExplodedShips() {
+        return explodedShips;
+    }
+
     private void explodeShips(String shipName) {
         for (int i = 0; i < field.getField().length; i++) {
             for (int j = 0; j < field.getField()[i].length; j++) {
-                if (fakeField.getField()[i][j].equals(shipName)) {
-                    System.out.println("You destroyed " + shipName);
+                if(fakeField.getField()[i][j].equals(shipName)) {
                     fakeField.getField()[i][j] = "🔥";
                 }
             }
@@ -66,36 +81,42 @@ public class Player implements GameEntities {
     public void placeShips() {
         boolean isShipsPlaced = false;
         int shipsPlayerPlaced = 0;
+        int ship = 0;
 
         while (!isShipsPlaced) {
-            System.out.println("Row: ");
-            int row = sc.nextInt();
-            System.out.println("Column: ");
-            int column = sc.nextInt();
-            System.out.println("V or H?");
-            String direction = sc.next().toLowerCase();
-            int boatCount = 0;
-            for (Ship ship : shipArrayList) {
-                System.out.println(boatCount + " " + ship.getName() + " | Size: " + ship.getSize());
-                boatCount++;
-            }
 
-            System.out.println("What ship?");
-            int ship;
-            ship = sc.nextInt();
+            int boatSize = shipArrayList.get(ship).getSize();
 
-            int boatSize = 0;
-            boolean isShipRight = false;
+            System.out.println("\nPut this ship on the field: " + shipArrayList.get(ship).getName() + " occupates "+shipArrayList.get(ship).getSize() + " spaces.");
 
-            while (!isShipRight) {
-                if (ship < 4 && ship >= 0) {
-                    boatSize = shipArrayList.get(ship).getSize();
-                    isShipRight = true;
-                } else {
-                    System.out.println("The ship doesn't exist. Try again!");
-                    ship = sc.nextInt();
+            int row, column;
+
+            do {
+                System.out.print("\n\u001b[44;1mRow:\u001b[0m ");
+                while (!sc.hasNextInt()) {
+                    System.out.println("\u001b[31mThis option only accepts 0-9 number.\u001b[0m");
+                    sc.next();
                 }
-            }
+                row = sc.nextInt();
+
+            } while (row < 0 || row > 9);
+
+            do {
+                System.out.print("\n\u001b[44;1mColumn:\u001b[0m ");
+                while (!sc.hasNextInt()) {
+                    System.out.println("\u001b[31mThis option only accepts 0-9 number.\u001b[0m");
+                    sc.next();
+                }
+                column = sc.nextInt();
+
+            } while (column < 0 || column > 9);
+
+            String direction;
+            do {
+                System.out.print("\n\u001b[44;1mVertical (V) or Horizontal (H)\u001b[0m ");
+                direction = sc.next().toLowerCase();
+
+            } while (!direction.equals("v") && !direction.equals("h"));
 
             switch (direction) {
                 case "v":
@@ -113,6 +134,7 @@ public class Player implements GameEntities {
                                 break;
                             }
                         }
+                        ship++;
                     } catch (Exception e) {
                         System.out.println("Can't place here. Out of bounds.");
                         break;
@@ -134,6 +156,7 @@ public class Player implements GameEntities {
                                 break;
                             }
                         }
+                        ship++;
                     } catch (Exception e) {
                         System.out.println("Can't place here. Out of bounds.");
                         break;
@@ -145,189 +168,95 @@ public class Player implements GameEntities {
         }
     }
 
-    public void placeShipsRandom1() {
-        boolean isShipsPlaced = false;
-        int count = 0;
-        while (!isShipsPlaced) {
-            int row = randomRowAndColumn();
-            int column = randomRowAndColumn();
-            int ship = count++;
-            int boatSize = 0;
-            boolean isShipRight = false;
-            while (!isShipRight) {
-                if (ship < 4 && ship >= 0) {
-                    boatSize = shipArrayList.get(ship).getSize();
-                    isShipRight = true;
-                }
-            }
-            boolean canPlaceShip = false;
-            switch (randomDirection()) {
-                case 0:
-                    try {
-                        canPlaceShip = true;
-                        for (int i = 0; i < boatSize; i++) {
-                            if (row + i >= field.getField().length || !field.getField()[row + i][column].equals("⬛")) {
-                                canPlaceShip = false;
-                                break;
-                            }
-                        }
-                        if (canPlaceShip) {
-                            for (int i = 0; i < boatSize; i++) {
-                                field.getField()[row + i][column] = shipArrayList.get(ship).getName();
-                            }
-                        }
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        // Não faz nada se ultrapassar os limites
-                        canPlaceShip = false;
-                    }
-                    break;
-                case 1:
-                    try {
-                        canPlaceShip = true;
-                        for (int i = 0; i < boatSize; i++) {
-                            if (column + i >= field.getField()[0].length || !field.getField()[row][column + i].equals("⬛")) {
-                                canPlaceShip = false;
-                                break;
-                            }
-                        }
-                        if (canPlaceShip) {
-                            for (int i = 0; i < boatSize; i++) {
-                                field.getField()[row][column + i] = shipArrayList.get(ship).getName();
-                            }
-                        }
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        // Não faz nada se ultrapassar os limites
-                        canPlaceShip = false;
-                    }
-                    break;
-            }
-            if (canPlaceShip && count >= 4) {
-                isShipsPlaced = true;
-            }
-            System.out.println();
-            renderCreationGraphic();
-        }
-    }
-
-    public int randomDirection() {
-        return (int) (Math.random() * 2);
-    }
-
-    public int randomRowAndColumn() {
-        Random random = new Random();
-
-        return random.nextInt(9 + 1);
-    }
-
-    @Override
-    public void renderGraphic() {
+    public void render() {
+        System.out.print("\t");
         for (int i = 0; i < fakeField.getField().length; i++) {
+            System.out.print("\u001b[1m\u001b[31m"+i + "\t");
+        }
+        System.out.println();
+
+        for (int i = 0; i < fakeField.getField().length; i++) {
+            System.out.print("\u001b[1m\u001b[31m"+i + "\t");
+
             for (int j = 0; j < fakeField.getField()[i].length; j++) {
-                System.out.print("\t" + fakeField.getField()[i][j]);
+                System.out.print(fakeField.getField()[i][j] + "\t");
             }
             System.out.println();
         }
+        System.out.print("\t\t\u001b[31m x" + shipArrayList.get(0).getSizeChange() + " " + shipArrayList.get(0).getName() + "| x" + shipArrayList.get(1).getSizeChange() + " " + shipArrayList.get(1).getName() + " " + "| x" + shipArrayList.get(2).getSizeChange() + " " + shipArrayList.get(2).getName() + " " + "| x" + shipArrayList.get(3).getSizeChange() + " " + shipArrayList.get(3).getName() + "\u001b[0m \n");
+        System.out.println();
     }
 
-    @Override
+
     public void renderCreationGraphic() {
+        System.out.print("\t");
         for (int i = 0; i < field.getField().length; i++) {
+            System.out.print("\u001b[1m\u001b[31m"+i + "\t");
+        }
+        System.out.println();
+
+        for (int i = 0; i < field.getField().length; i++) {
+            System.out.print("\u001b[1m\u001b[31m"+i + "\t");
+
             for (int j = 0; j < field.getField()[i].length; j++) {
-                System.out.print("\t" + field.getField()[i][j]);
+                System.out.print(field.getField()[i][j] + "\t");
             }
             System.out.println();
+        }
+        System.out.print("\t\t\u001b[31m x" + shipArrayList.get(0).getSizeChange() + " " + shipArrayList.get(0).getName() + "| x" + shipArrayList.get(1).getSizeChange() + " " + shipArrayList.get(1).getName() + " " + "| x" + shipArrayList.get(2).getSizeChange() + " " + shipArrayList.get(2).getName() + " " + "| x" + shipArrayList.get(3).getSizeChange() + " " + shipArrayList.get(3).getName() + "\u001b[0m \n");
+        System.out.println();
+    }
+
+    public void placeRandomShips() {
+        for (Ship ship : shipArrayList) {
+            boolean shipPlaced = false;
+
+            while (!shipPlaced) {
+                int row = randomRowAndColumns();
+                int column = randomRowAndColumns();
+                int direction = direction();
+
+                try {
+                    switch (direction) {
+                        case 0:
+                            for (int i = 0; i < ship.getSize(); i++) {
+                                if (row + i >= field.getField().length || !field.getField()[row + i][column].equals("⬛")) {
+                                    throw new Exception("Invalid placement");
+                                }
+                            }
+
+                            for (int i = 0; i < ship.getSize(); i++) {
+                                field.getField()[row + i][column] = ship.getName();
+                            }
+
+                            shipPlaced = true;
+                            break;
+
+                        case 1:
+                            for (int i = 0; i < ship.getSize(); i++) {
+                                if (column + i >= field.getField()[row].length || !field.getField()[row][column + i].equals("⬛")) {
+                                    throw new Exception("Invalid placement");
+                                }
+                            }
+
+                            for (int i = 0; i < ship.getSize(); i++) {
+                                field.getField()[row][column + i] = ship.getName();
+                            }
+
+                            shipPlaced = true;
+                            break;
+                    }
+                } catch (Exception e) {
+                }
+            }
         }
     }
 
-    public void placeShipsRandom() {
-        boolean isShipsPlaced = false;
-        boolean shipPlaced;
-        boolean placeBoat;
-        int shipsPlayerPlaced = 0;
-        Random random = new Random();
+    public int randomRowAndColumns() {
+        return (int) (Math.random() * 10);
+    }
 
-
-        int ship = 0;
-        while (!isShipsPlaced) {
-            int counter = 0;
-            placeBoat = false;
-            shipPlaced = false;
-            int row = random.nextInt(9 + 1);
-            int column = random.nextInt(9 + 1);
-            int direction = random.nextInt(1 + 1);
-
-
-            int boatSize = shipArrayList.get(ship).getSize();
-
-            try {
-                switch (direction) {
-                    case 0:
-                        try {
-                            if (row + shipArrayList.get(ship).getSize() > 6) {
-                                row = 6;
-                            }
-
-                            for (int i = 0; i < boatSize; i++) {
-                                if (field.getField()[row + i][column].equals("⬛")) {
-                                    counter++;
-                                }
-                                shipsPlayerPlaced++;
-                            }
-                            if (counter == shipArrayList.get(ship).getSize()) {
-                                for (int i = 0; i < boatSize; i++) {
-                                    if (field.getField()[row + i][column].equals("⬛")) {
-                                        field.getField()[row + i][column] = shipArrayList.get(ship).getName();
-
-                                    }
-                                    shipsPlayerPlaced++;
-                                }
-                                shipPlaced = true;
-                            }
-                            if (shipPlaced) {
-                                ship++;
-                            }
-                        } catch (Exception e) {
-                            break;
-                        }
-                        break;
-
-                    case 1:
-                        try {
-                            if (column + shipArrayList.get(ship).getSize() > 6) {
-                                column = 6;
-                            }
-
-                            for (int i = 0; i < boatSize; i++) {
-                                if (field.getField()[row][column + i].equals("⬛")) {
-                                    counter++;
-                                }
-                                shipsPlayerPlaced++;
-                            }
-                            if (counter == shipArrayList.get(ship).getSize()) {
-                                for (int i = 0; i < boatSize; i++) {
-                                    if (field.getField()[row][column + i].equals("⬛")) {
-                                        field.getField()[row][column + i] = shipArrayList.get(ship).getName();
-                                    }
-                                    shipsPlayerPlaced++;
-                                }
-                                shipPlaced = true;
-                            }
-                            if (shipPlaced) {
-                                ship++;
-                            }
-                        } catch (Exception e) {
-                            break;
-                        }
-                        break;
-                }
-                if (shipsPlayerPlaced == 10) {
-                    isShipsPlaced = true;
-                }
-            } catch (Exception ignored) {
-            }
-            renderCreationGraphic();
-            System.out.println();
-
-        }
+    public int direction() {
+        return (int) (Math.random() * 2);
     }
 }

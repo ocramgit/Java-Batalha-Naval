@@ -2,10 +2,12 @@ public class Vehicles {
     private String name;
     private int size;
     private int timesHit;
+    private int sizeChange;
 
-    public Vehicles(String name, int size) {
+    public Vehicles(String name, int size, int sizeChange) {
         this.name = name;
         this.size = size;
+        this.sizeChange = sizeChange;
     }
 
     public int getTimesHit() {
@@ -30,5 +32,13 @@ public class Vehicles {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public int getSizeChange() {
+        return sizeChange;
+    }
+
+    public void setSizeChange(int sizeChange) {
+        this.sizeChange = sizeChange;
     }
 }

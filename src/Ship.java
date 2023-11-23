@@ -1,7 +1,7 @@
 
 public class Ship extends Vehicles {
 
-    public Ship(String name, int size) {
-        super(name, size);
+    public Ship(String name, int size, int sizeChange) {
+        super(name, size, sizeChange);
     }
 }

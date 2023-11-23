@@ -1,5 +1,6 @@
 public interface GameEntities {
-    void play(int row, int column);
-    void renderGraphic();
+    void play(int row, int column) throws InterruptedException;
+    void render();
     void renderCreationGraphic();
+
 }
